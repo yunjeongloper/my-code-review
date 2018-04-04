@@ -1,6 +1,6 @@
 package com.devunlimit.project.board.domain.dto;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class ReplyDTO {
 
@@ -11,27 +11,26 @@ public class ReplyDTO {
   private String writer_no;
   private Date write_date;
   private String parents_no;
+  private String delete_ok;
+  private String deleted;
+  private String re_re;
 
-  public ReplyDTO( ) {
+  public ReplyDTO() {
 
   }
 
-  public ReplyDTO(String no, String board_no, String content, String writer,
-      Date write_date, String parents_no) {
+  public ReplyDTO(String no, String board_no, String content, String writer, String parents_no) {
     this.no = no;
     this.board_no = board_no;
     this.content = content;
     this.writer = writer;
-    this.write_date = write_date;
     this.parents_no = parents_no;
   }
 
-  public ReplyDTO(String board_no, String content, String writer, Date write_date,
-      String parents_no) {
+  public ReplyDTO(String board_no, String content, String writer, String parents_no) {
     this.board_no = board_no;
     this.content = content;
     this.writer = writer;
-    this.write_date = write_date;
     this.parents_no = parents_no;
   }
 
@@ -89,5 +88,29 @@ public class ReplyDTO {
 
   public void setParents_no(String parents_no) {
     this.parents_no = parents_no;
+  }
+
+  public String getDelete_ok() {
+    return delete_ok;
+  }
+
+  public void setDelete_ok(String delete_ok) {
+    this.delete_ok = delete_ok;
+  }
+
+  public String getDeleted() {
+    return deleted;
+  }
+
+  public void setDeleted(String deleted) {
+    this.deleted = deleted;
+  }
+
+  public String getRe_re() {
+    return re_re;
+  }
+
+  public void setRe_re(String re_re) {
+    this.re_re = re_re;
   }
 }

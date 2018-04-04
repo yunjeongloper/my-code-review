@@ -56,14 +56,12 @@
 
   function formChk() {
 
-    // 아이디 입력이 안됐을 경우
     if (document.getElementById('loginForm').id.value == '') {
       document.getElementById('loginForm').id.focus();
       $('#help-id').text("아이디를 입력해주세요");
       document.getElementById('loginForm').id.closest(".form-md-floating-label").addClass(
           "has-error");
 
-      // 비밀번호 입력이 안됐을 경우
     } else if (document.getElementById('loginForm').pass.value == "") {
       document.getElementById('loginForm').pass.focus();
       $('#help-pwd').text("비밀번호를 입력해주세요");
@@ -82,7 +80,6 @@
         type: 'post',
         data: $('#loginForm').serialize(),
         success: function (data) {
-          // 확인용 alert(data.message);
           if (data.status == "200") {
             if (data.message == "duplicated") {
               var change = confirm("다른 사용자가 같은 아이디로 로그인중입니다! 강제로 로그아웃 하시겠습니까?");

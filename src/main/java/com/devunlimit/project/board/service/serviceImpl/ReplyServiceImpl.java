@@ -15,11 +15,16 @@ public class ReplyServiceImpl implements ReplyService {
   @Autowired
   private ReplyDAO replyDAO;
 
-  // 안쓰일듯. 추후에 수정
   @Override
   public List<ReplyDTO> selectList(String boardNum) {
 
-    List<ReplyDTO> replyDTOList = replyDAO.selectList(boardNum);
+    List<ReplyDTO> replyDTOList = null;
+
+    if ( boardNum.length() == 0 || boardNum.isEmpty() ) {
+      throw new IllegalStateException();
+    } else {
+      replyDTOList = replyDAO.selectList(boardNum);
+    }
 
     return replyDTOList;
   }
@@ -32,41 +37,54 @@ public class ReplyServiceImpl implements ReplyService {
     int insertResult = replyDAO.insertReply(replyDTO);
     int updateResult = 0;
 
-    if( insertResult == 1) {
-
+    if(insertResult == 1) {
       updateResult = replyDAO.updateReplyParents(replyDTO.getNo());
-
     } else {
-
+      throw new InsertReplyErrorException();
     }
 
     return updateResult;
   }
 
   @Override
-  public int deleteReply(String replyNo) {
+  public int deleteReply(String no) {
 
-    int deleteResult = replyDAO.deleteReply(replyNo);
+    int deleteResult = 0;
 
+    if ( no.length() == 0 || no.isEmpty()) {
+      throw new IllegalStateException();
+    } else {
+      deleteResult = replyDAO.deleteReply(no);
+      if (deleteResult == 1) {
+        replyDAO.deleteUpdate(no);
+      } else {
+        throw new DeleteReplyErrorException();
+      }
+    }
     return deleteResult;
   }
 
   @Override
-  public int updateReply(String replyNo, String reContent) {
+  public int updateReply(String no, String content) {
 
     int updateResult = 0;
 
-    if ( reContent.length() == 0 || reContent.isEmpty() ) {
-
-      throw new IllegalStateException("ContentNull");
-
+    if ( content.length() == 0 || content.isEmpty() || no.length() == 0 || no.isEmpty()) {
+      throw new IllegalStateException();
     } else {
-
-      updateResult = replyDAO.updateReply(replyNo, reContent);
-
+      updateResult = replyDAO.updateReply(no, content);
+      if(updateResult == 1){
+      } else {
+        throw new UpdateReplyErrorException();
+      }
     }
-
     return updateResult;
+  }
+
+  @Override
+  public int deletedReplyNum(String boardNum) {
+
+    return replyDAO.deletedReplyNum(boardNum);
   }
 
   // insert 데이터 유효성 검사
@@ -77,11 +95,20 @@ public class ReplyServiceImpl implements ReplyService {
       throw new IllegalStateException("ContentNullError");
     } else if ( replyDTO.getWriter().length() == 0 || replyDTO.getWriter().isEmpty()) {
       throw new IllegalStateException("WriterNumError");
-    } else if ( replyDTO.getWrite_date() == null ) {
-      throw new IllegalStateException("DateNullError");
     } else if ( replyDTO.getParents_no().length() == 0 || replyDTO.getParents_no().isEmpty()) {
       throw new IllegalStateException("ParentsNumError");
     }
   }
 
+  public static class InsertReplyErrorException extends RuntimeException {
+
+  }
+
+  public static class DeleteReplyErrorException extends RuntimeException {
+
+  }
+
+  public static class UpdateReplyErrorException extends RuntimeException {
+
+  }
 }

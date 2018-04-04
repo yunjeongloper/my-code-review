@@ -14,8 +14,12 @@ public interface ReplyDAO {
 
   int updateReplyParents(@Param("replyNo") String replyNo);
 
-  int deleteReply(@Param("replyNo") String replyNo);
+  int deleteReply(@Param("no") String no);
 
-  int updateReply(@Param("replyNo") String replyNo, @Param("reContent") String reContent);
+  int deleteUpdate(@Param("no") String no);
+
+  int updateReply(@Param("no") String replyNo, @Param("content") String reContent);
+
+  int deletedReplyNum(@Param("boardNum") String boardNum);
 
 }

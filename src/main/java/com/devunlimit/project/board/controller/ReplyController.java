@@ -2,9 +2,7 @@ package com.devunlimit.project.board.controller;
 
 import com.devunlimit.project.board.domain.dto.ReplyDTO;
 import com.devunlimit.project.board.service.ReplyService;
-import java.sql.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,63 +20,23 @@ public class ReplyController {
   @Autowired
   private ReplyService replyService;
 
-  @RequestMapping(value = "/replyList.do", method = RequestMethod.GET)
-  public ModelAndView replyList(String boardNum, HttpSession session) {
-
-    ModelAndView mav = new ModelAndView();
-
-    List<ReplyDTO> replyDTOList = replyService.selectList(boardNum);
-
-    int listLength = replyDTOList.size();
-
-    Date write_date = new Date(new java.util.Date().getTime());
-
-    mav.addObject("listLength", listLength);
-    mav.addObject("replyDTOList2", replyDTOList);
-    mav.addObject("memberNo", session.getAttribute("memberNo"));
-    mav.addObject("write_date", write_date);
-
-    mav.setViewName("board/detail");
-
-    return mav;
-
-  }
-
-
   @RequestMapping(value = "/replyInsert.do", method = RequestMethod.GET)
-  public ModelAndView replyInsert() {
-
-    ModelAndView mav = new ModelAndView();
-
-    mav.setViewName("board/detail");
-
-    return mav;
-
-  }
-
-
-  @RequestMapping(value = "/replyInsert.do", method = RequestMethod.POST)
   @ResponseBody
-  public Map replyInsert(@ModelAttribute ReplyDTO replyDTO, HttpSession session) {
+  public Map replyInsert(@ModelAttribute ReplyDTO replyDTO, HttpSession session, String boardNum) {
 
     Map<String, String> status = new HashMap<>();
 
-    // default 999
     status.put("result", "999");
 
     try {
 
       int resultBoolean = replyService.insertReply(replyDTO);
-
-      // 성공하면 1
       status.put("result", String.valueOf(resultBoolean));
 
-    } catch (IllegalStateException failLength) {
+    } catch (Exception failLength) {
 
-      // 실패하면 0
       status.put("result", "0");
-
-      status.put("message", failLength.getMessage());
+      status.put("errorMsg", failLength.toString());
     }
 
     return status;
@@ -86,39 +44,44 @@ public class ReplyController {
   }
 
 
-  @RequestMapping(value = "/replyDelete.do", method = RequestMethod.GET)
-  public ModelAndView replyDelete(String replyNo) {
+  @RequestMapping(value = "/replyDelete.do", method = RequestMethod.POST)
+  @ResponseBody
+  public Map replyDelete(@ModelAttribute("no") String no) {
 
-    ModelAndView mav = new ModelAndView();
+    Map<String, String> status = new HashMap<>();
 
-    int resultBoolean = replyService.deleteReply(replyNo);
+    status.put("result", "999");
 
-    mav.addObject("result",String.valueOf(resultBoolean));
+    try {
 
-    mav.setViewName("board/detail");
+      int resultBoolean = replyService.deleteReply(no);
+      status.put("result", String.valueOf(resultBoolean));
 
-    return mav;
+    } catch (Exception failLength) {
+
+      status.put("result", "0");
+      status.put("errorMsg", failLength.toString());
+    }
+
+    return status;
 
   }
 
 
   @RequestMapping(value = "/replyUpdate.do", method = RequestMethod.GET)
-  public ModelAndView replyUpdate(String replyNo, String reContent) {
+  public ModelAndView replyUpdate(@ModelAttribute ReplyDTO replyDTO) {
 
     ModelAndView mav = new ModelAndView();
 
     try {
 
-      // 성공하면 1
-      int resultBoolean = replyService.updateReply(replyNo, reContent);
-
+      int resultBoolean = replyService.updateReply(replyDTO.getNo(), replyDTO.getContent());
       mav.addObject("result", String.valueOf(resultBoolean));
 
-    } catch (IllegalStateException failLength) {
+    } catch (Exception failLength) {
 
-      // 실패하면 0
       mav.addObject("result", "0");
-
+      mav.addObject("message", failLength.toString());
     }
 
     mav.setViewName("board/detail");

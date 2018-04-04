@@ -5,33 +5,51 @@
 
 
     <select id="selectList" resultType="com.devunlimit.project.board.domain.dto.ReplyDTO">
-        SELECT comment.no, board_no, content, member.id AS writer, writer AS writer_no, write_date, parents_no
-        FROM comment
+        SELECT a.no, a.board_no, a.content, member.id AS writer, a.writer AS writer_no, a.write_date, a.parents_no, a.delete_ok,
+        ( SELECT count(*) FROM comment b WHERE a.no=b.parents_no ) AS re_re
+        FROM comment a
         JOIN member
-        ON member.no = comment.writer
-        AND board_no = #{boardNum}
+        ON member.no = a.writer
+        AND a.board_no = #{boardNum}
+        ORDER BY a.parents_no asc, a.no asc;
     </select>
 
     <insert id="insertReply" useGeneratedKeys="true" keyProperty="reply.no">
         INSERT INTO comment ( board_no, content, writer, write_date, parents_no )
-        VALUES ( #{reply.board_no}, #{reply.content}, #{reply.writer}, #{reply.write_date}, #{reply.parents_no} )
+        VALUES ( #{reply.board_no}, #{reply.content}, #{reply.writer}, now(), #{reply.parents_no} )
     </insert>
 
     <update id="updateReplyParents">
         UPDATE comment
         SET parents_no = #{replyNo}
         WHERE no = #{replyNo}
+        AND parents_no = 0
     </update>
 
-    <delete id="deleteReply">
+    <update id="deleteReply">
+        UPDATE comment
+        SET delete_ok = '1'
+        WHERE no = #{no}
+    </update>
+
+    <delete id="deleteUpdate">
         DELETE FROM comment
-        WHERE no = #{replyNo}
+        WHERE no=#{no}
+        AND parents_no!=#{no}
+        AND delete_ok='1';
     </delete>
 
-    <delete id="updateReply">
+    <update id="updateReply">
         UPDATE comment
-        SET content = #{reContent}
-        WHERE no = #{replyNo}
-    </delete>
+        SET content = #{content}, write_date = NOW()
+        WHERE no = #{no}
+    </update>
+
+    <select id="deletedReplyNum" resultType="int">
+        SELECT IFNULL((count(delete_ok)),0) AS deleted
+        FROM comment
+        WHERE board_no = #{boardNum}
+        AND delete_ok = 1;
+    </select>
 
 </mapper>
