@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.devunlimit.project.board.domain.dao.ReplyDAO">
+
+
+    <select id="selectList" resultType="com.devunlimit.project.board.domain.dto.ReplyDTO">
+        SELECT comment.no, board_no, content, member.id AS writer, writer AS writer_no, write_date, parents_no
+        FROM comment
+        JOIN member
+        ON member.no = comment.writer
+        AND board_no = #{boardNum}
+    </select>
+
+    <insert id="insertReply" useGeneratedKeys="true" keyProperty="reply.no">
+        INSERT INTO comment ( board_no, content, writer, write_date, parents_no )
+        VALUES ( #{reply.board_no}, #{reply.content}, #{reply.writer}, #{reply.write_date}, #{reply.parents_no} )
+    </insert>
+
+    <update id="updateReplyParents">
+        UPDATE comment
+        SET parents_no = #{replyNo}
+        WHERE no = #{replyNo}
+    </update>
+
+    <delete id="deleteReply">
+        DELETE FROM comment
+        WHERE no = #{replyNo}
+    </delete>
+
+    <delete id="updateReply">
+        UPDATE comment
+        SET content = #{reContent}
+        WHERE no = #{replyNo}
+    </delete>
+
+</mapper>
